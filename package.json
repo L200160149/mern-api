@@ -1,0 +1,16 @@
+{
+  "name": "mern-api",
+  "version": "1.0.0",
+  "description": "REST API JS (MERN Stack)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "Dewaning",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.18"
+  }
+}

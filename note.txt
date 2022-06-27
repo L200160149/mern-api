@@ -1,0 +1,2 @@
+app.use()
+// use dapat menerima method apapun (GET, POST, PUT, DELETE, etc)
