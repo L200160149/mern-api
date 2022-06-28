@@ -1,21 +1,19 @@
-const express = require('express')
+const express = require("express");
 
-const app = express()
-const router = express.Router()
+const app = express();
+const productRoutes = require("./src/routes/products");
 
-// use menerima semua method
-app.use('/products', (req, res, next) => {
-    console.log('url', req.originalUrl)
-    console.log('method', req.method)
-    res.json({name: "Dewaning", email: "email.dewaning"})
-    next();
-})
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Method",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
 
-app.get('/users', (req, res, next) => {
-    res.json({name: "Name Users"});
-    next();
-})
+// app.use("/", productRoutes);
+app.use("/v1/", productRoutes);
 
-app.use('/', router)
-
-app.listen(4000)
+app.listen(4000);
