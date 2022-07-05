@@ -19,4 +19,6 @@ router.put('/post/:postId', [
     body('body').isLength({min: 5}).withMessage('body minimal 5 karakter')
 ], blogController.updateBlogPost)
 
+router.delete('/post/:postId', blogController.deleteBlogPost);
+
 module.exports = router;
