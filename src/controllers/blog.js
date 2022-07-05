@@ -1,33 +1,45 @@
-const {validationResult} = require('express-validator')
+const { validationResult } = require("express-validator");
+const BlogPost = require("../models/blog");
 
 exports.createBlogPost = (req, res, next) => {
-    const title = req.body.title;
-    // const image = req.body.image;
-    const body = req.body.body;
+  const errors = validationResult(req);
 
-    const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const err = new Error("Invalid Value");
+    err.errorStatus = 400;
+    err.data = errors.array();
+    throw err;
+  }
 
-    if(!errors.isEmpty()) {
-        const err = new Error('Invalid Value');
-        err.errorStatus = 400;
-        err.data = errors.array();
-        throw err;
-    }
+  if (!req.file) {
+    const err = new Error("No file");
+    err.errorStatus = 422;
+    throw err;
+  }
 
-    const result = {
-        message: 'Create Blog',
-        data: {
-            post_id: 1,
-            title: title,
-            image: 'image.png',
-            body: body,
-            created_at: "12/06/2022",
-            author: {
-                uid: 1,
-                name: "Testing"
-            }
-        }
-    }
+  const title = req.body.title;
+  const image = req.file.path;
+  const body = req.body.body;
 
-    res.status(201).json(result)
-}
+  const Posting = new BlogPost({
+    title: title,
+    body: body,
+    image: image,
+    author: {
+      uid: 1,
+      name: "Dewaning",
+    },
+  });
+
+  Posting.save()
+    .then((result) => {
+      const rest = {
+        message: "Create Blog",
+        data: result,
+      };
+      res.status(201).json(rest);
+    })
+    .catch((err) => {
+      console.log("err: ", err);
+    });
+};
