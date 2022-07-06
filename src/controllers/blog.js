@@ -1,6 +1,9 @@
 const { validationResult } = require("express-validator");
 const BlogPost = require("../models/blog");
+// import path
 const path = require('path')
+// file system
+const fs = require('fs')
 
 exports.createBlogPost = (req, res, next) => {
   const errors = validationResult(req);
@@ -47,11 +50,29 @@ exports.createBlogPost = (req, res, next) => {
 
 
 exports.getAllBlogPost = (req, res, next) => {
+  // untuk menangani pagination
+  // agar load data tidak terlalu berat
+  // jika client tidak mengirimkan currentPage default 1
+  const currentPage = req.query.page || 1;
+  // jika client tidak mengirimkan perPage default 5
+  const perPage = req.query.perPage || 5;
+  let totalItems;
+
   BlogPost.find()
+  .countDocuments()
+  .then(count => {
+    totalItems = count
+    return BlogPost.find()
+    .skip((parseInt(currentPage) - 1) * parseInt(perPage))
+    .limit(parseInt(perPage))
+  })
   .then(result => {
     res.status(200).json({
-      message: "Data Blog Post Berhasil Dipanggil",
-      data: result
+      message: 'Data Blog Post Berhasil Dipanggil',
+      data: result,
+      total_data: totalItems,
+      per_page: parseInt(perPage),
+      current_page: parseInt(currentPage)
     })
   })
   .catch(err => {
@@ -139,9 +160,15 @@ exports.deleteBlogPost = (req, res, next) => {
 
     // delete image
     removeImage(post.image)
+    // ini akan memanggil sebuah promise jadi harus di return
+    // lalu result dibuatkan dan dipindah ke then
+    return BlogPost.findByIdAndRemove(postId)
+  })
+  // membuat promise baru dengan then
+  .then(result => {
     res.status(200).json({
       message: "Hapus Berhasil",
-      data: {}
+      data: result
     })
   })
   .catch(err => {
@@ -152,4 +179,8 @@ exports.deleteBlogPost = (req, res, next) => {
 const removeImage = (filePath) => {
   console.log('filepath: ', filePath)
   console.log('dir name: ', __dirname)
+
+  filePath = path.join(__dirname, '../..', filePath)
+  console.log(filePath)
+  fs.unlink(filePath, err => console.log(err))
 }
